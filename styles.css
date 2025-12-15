@@ -1,0 +1,557 @@
+/* =========================================================
+   CSS VARIABLES (Theme Colors)
+   ========================================================= */
+:root{
+  --blue:#2563eb;
+  --green:#16a34a;
+  --danger:#dc2626;
+
+  --muted:#6b7280;
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  
+
+  --text:#111827;
+  --title:#111827;
+  --border:rgba(0,0,0,0.06);
+  --shadow:0 10px 25px rgba(0,0,0,0.06),
+           0 2px 6px rgba(0,0,0,0.04);
+}
+
+body.dark{
+  --blue:#4da3ff;
+  --green:#22c55e;
+  --danger:#ff6b6b;
+
+  --muted:#9aa4b2;
+  --bg:#0b1220;              /* dark blue background */
+  --card:rgba(15,23,42,0.85);   /* deep blue-gray */
+  --border:rgba(255,255,255,0.06);
+
+  --text:#e5e7eb;
+  --title:#f9fafb;
+  --muted:#9aa4b2;
+
+    --shadow:
+    0 20px 40px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+
+
+/* =========================================================
+   BASE / RESET
+   ========================================================= */
+body{
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  margin:18px;
+  background:var(--bg);
+  color:var(--text);
+  color:#111827;   /* softer than pure black */
+}
+
+h1{
+  font-size:20px;
+  margin:0 0 12px;
+  color:var(--title);
+}
+
+/* =========================================================
+   LAYOUT UTILITIES
+   ========================================================= */
+.container{
+  max-width:1280px;
+  margin:0 auto;
+}
+
+.row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+/* Push an element to the far right inside a flex row */
+.push-right{
+  margin-left:auto;
+}
+
+.hidden{
+  display:none;
+}
+
+/* =========================================================
+   CARD / COMMON UI
+   ========================================================= */
+.card{
+  background:var(--card);
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:18px;
+
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+body.dark .sidebar,
+body.dark .tasks-panel,
+body.dark .task-row{
+  border-color:rgba(255,255,255,0.05);
+}
+body.dark input,
+body.dark textarea,
+
+body.dark select{
+  background:rgba(15,23,42,0.75);
+  color:var(--text);
+  border-color:var(--border);
+}
+
+
+
+footer{
+  margin-top:22px;
+  color:#666;
+  font-size:13px;
+  text-align:center;
+}
+
+.notice{
+  background:#fff7e6;
+  border:1px solid #f5d6a6;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:12px;
+}
+
+/* =========================================================
+   TEXT UTILITIES
+   ========================================================= */
+.small{
+  font-size:13px;
+}
+
+.muted{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.small-muted{
+  font-size:12px;
+  color:#778;
+}
+
+.note{
+  font-size:13px;
+  color:#556;
+}
+
+.status{
+  font-weight:600;
+}
+
+/* Subtitle under main heading */
+.subtitle{
+  font-size:14px;
+  font-weight:500;
+  margin-top:-6px;          /* pulls it closer to h1 */
+  margin-bottom:14px;
+  color:var(--muted);
+  letter-spacing:0.3px;
+}
+
+
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
+input,
+button,
+select,
+textarea{
+  font-size:14px;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #dbe7fb;
+}
+
+button{
+  cursor:pointer;
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+nav .nav-btn{
+  background:var(--blue);
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+}
+
+/* =========================================================
+   WELCOME / HERO SECTION
+   ========================================================= */
+.welcome-block{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  width: 100%;
+}
+
+.welcome-block img{
+  width:100%;          /* banner-style width */
+  height:360px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.welcome-text{
+  margin-top:12px;
+}
+
+/* =========================================================
+   MAIN APP GRID
+   ========================================================= */
+.app-grid{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:18px;
+  margin-top:12px;
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+.sidebar{
+  background:#fff;
+  border-radius:10px;
+  padding:12px;
+  border:1px solid #e6eefc;
+  min-height:420px;
+}
+
+.list-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  background:#f7f9ff;
+  cursor:pointer;
+}
+
+.list-item.selected{
+  background:#eef4ff;
+  border:1px solid rgba(47,128,237,0.12);
+}
+
+.list-item.dragover{
+  outline:2px dashed rgba(47,128,237,0.38);
+}
+
+.list-title{
+  font-weight:600;
+}
+
+.count-muted{
+  font-size:12px;
+  color:#6c7a86;
+}
+
+.collapse-btn{
+  background:transparent;
+  border:none;
+  color:#556;
+  cursor:pointer;
+}
+
+/* =========================================================
+   TASKS PANEL
+   ========================================================= */
+.tasks-panel{
+  background:#fff;
+  border-radius:10px;
+  padding:12px;
+  border:1px solid #e6eefc;
+  min-height:360px;
+  display:flex;
+  flex-direction:column;
+}
+
+.tasks-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+.task-input{
+  display:flex;
+  gap:8px;
+}
+
+.task-list{
+  overflow:auto;
+  flex:1;
+  padding-right:6px;
+}
+
+/* =========================================================
+   TASK ITEM
+   ========================================================= */
+.task-row{
+  display:flex;
+  flex-direction:column;
+  padding:8px;
+  border-radius:6px;
+  margin-bottom:8px;
+  border:1px solid #f0f4fb;
+  background:#fcfdff;
+  cursor:grab;
+}
+
+.task-row:active{
+  cursor:grabbing;
+}
+
+.task-main{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.task-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:1;
+}
+
+.task-title{
+  font-weight:600;
+  cursor:pointer;
+}
+
+.task-meta{
+  font-size:12px;
+  color:#788792;
+  margin-left:8px;
+}
+
+.completed .task-title{
+  text-decoration:line-through;
+  color:#8897a4;
+}
+
+.empty-note{
+  color:#6b7780;
+  padding:12px;
+  text-align:center;
+}
+
+/* =========================================================
+   TASK ACTIONS
+   ========================================================= */
+.check-circle{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  border:2px solid #c8d7ff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+.check-circle.checked{
+  background:var(--blue);
+  color:white;
+  border:none;
+}
+
+.star{
+  cursor:pointer;
+  padding:6px;
+  border-radius:6px;
+}
+
+.star.on{
+  color:var(--blue);
+  font-weight:700;
+}
+
+.right-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-left:12px;
+}
+
+/* =========================================================
+   SUBTASKS
+   ========================================================= */
+.subtasks{
+  margin-top:10px;
+  border-top:1px dashed #eef5ff;
+  padding-top:8px;
+}
+
+.subtask-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 0;
+}
+
+.subtask-row .subcheck{
+  width:18px;
+  height:18px;
+  border-radius:4px;
+  border:1px solid #dbe7fb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+.subtask-title{
+  flex:1;
+}
+
+/* =========================================================
+   PROGRESS BAR
+   ========================================================= */
+.progress-wrap{
+  height:8px;
+  background:#f1f6ff;
+  border-radius:6px;
+  overflow:hidden;
+  margin-top:8px;
+}
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--blue),#7ab4ff);
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(10,20,30,0.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.modal{
+  background:white;
+  border-radius:10px;
+  padding:18px;
+  width:520px;
+  max-width:95%;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal h3{
+  margin:0 0 12px;
+}
+
+.modal .row{
+  flex-direction:column;
+  align-items:stretch;
+}
+
+.modal .row > *{
+  width:100%;
+}
+
+.modal .actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:10px;
+}
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+.status-badge{
+  padding:6px 8px;
+  border-radius:8px;
+  border:1px solid #e6eefc;
+  font-size:13px;
+  cursor:pointer;
+  user-select:none;
+}
+
+.status-badge.watched{
+  background:#e9f9ef;
+  border-color:#bfe7c9;
+  color:#0b6b35;
+  font-weight:600;
+}
+
+.status-badge.pending{
+  background:#fffaf6;
+  border-color:#f1d9c3;
+  color:#6a4b12;
+  font-weight:600;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width:880px){
+  .app-grid{
+    grid-template-columns:1fr;
+  }
+  .welcome-block img{
+    height:220px;
+  }
+  .sidebar{
+    order:2;
+  }
+
+  .tasks-panel{
+    order:1;
+  }
+}
+/* =========================================================
+   LOGIN LINKS (Create account / Forgot password)
+   ========================================================= */
+
+/* Normal mode */
+#login-form .row.small-muted a{
+  color:#7ab4ff;              /* soft readable blue */
+  font-weight:500;
+  text-decoration:none;
+  transition:color 0.25s ease, text-shadow 0.25s ease;
+}
+
+#login-form .row.small-muted a:hover{
+  color:#4da3ff;
+  text-decoration:underline;
+}
+
+/* Dark mode – better contrast */
+body.dark #login-form .row.small-muted a{
+  color:#9fd0ff;
+}
+
+body.dark #login-form .row.small-muted a:hover{
+  color:#ffffff;
+  text-shadow:0 0 6px rgba(255,255,255,0.35);
+}

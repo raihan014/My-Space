@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Space</title>
+  <!-- Link to external stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dark">
+  <div class="container">
+    <header>
+      <h1>My Space☄️</h1>
+      <h2 class="subtitle">Your Space, Your World</h2>
+      <div>
+        <button id="show-login" class="nav-btn">Login / Register</button>
+        <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+      </div>
+    </header>
+
+    <div class="notice card">
+      <div><strong>Demo notes:</strong> This demo stores data in your browser's <code>localStorage</code>. Email sending is <em>simulated</em>.</div>
+    </div>
+
+    <!-- AUTH (Login / Register / Reset) -->
+    <div id="auth-area" class="card">
+      <div id="auth-forms">
+        <!-- LOGIN -->
+        <div id="login-form">
+          <h3>Login</h3>
+          <div class="row" style="margin-bottom:8px">
+            <input id="login-username" placeholder="Username or email" />
+            <input id="login-password" type="password" placeholder="Password" />
+            <button id="btn-login" class="info">Login</button>
+          </div>
+          <div class="row small-muted">
+            <a href="#" id="link-show-register">Create account</a>
+            &nbsp;•&nbsp;
+            <a href="#" id="link-forgot">Forgot password?</a>
+          </div>
+          <p id="login-msg" class="muted"></p>
+        </div>
+
+        <!-- REGISTER -->
+        <div id="register-form" class="hidden">
+          <h3>Register</h3>
+          <div class="row" style="margin-bottom:8px">
+            <input id="reg-username" placeholder="Choose username" />
+            <input id="reg-email" placeholder="Email (Gmail recommended)" />
+          </div>
+          <div class="row" style="margin-bottom:8px">
+            <input id="reg-password" type="password" placeholder="Password" />
+            <input id="reg-password2" type="password" placeholder="Confirm password" />
+          </div>
+          <div class="row">
+            <button id="btn-register" class="success">Register</button>
+            <button id="btn-cancel-register">Cancel</button>
+          </div>
+          <p id="reg-msg" class="muted"></p>
+        </div>
+
+        <!-- VERIFY CODE -->
+        <div id="verify-form" class="hidden">
+          <h3>Enter verification code</h3>
+          <div class="row" style="margin-bottom:8px">
+            <input id="verify-code" placeholder="6-digit code" />
+            <button id="btn-verify" class="success">Verify</button>
+          </div>
+          <div class="row small-muted">
+            <a href="#" id="resend-code">Resend code</a>
+            &nbsp;•&nbsp;
+            <a href="#" id="cancel-verify">Cancel</a>
+          </div>
+          <p id="verify-msg" class="muted"></p>
+        </div>
+
+        <!-- FORGOT -->
+        <div id="forgot-form" class="hidden">
+          <h3>Forgot password</h3>
+          <div class="row" style="margin-bottom:8px">
+            <input id="forgot-email" placeholder="Registered email" />
+            <button id="btn-forgot" class="info">Send reset code</button>
+          </div>
+          <p id="forgot-msg" class="muted"></p>
+        </div>
+
+        <!-- RESET -->
+        <div id="reset-form" class="hidden">
+          <h3>Reset password</h3>
+          <div class="row" style="margin-bottom:8px">
+            <input id="reset-password" type="password" placeholder="New password" />
+            <input id="reset-password2" type="password" placeholder="Confirm new password" />
+          </div>
+          <div class="row">
+            <button id="btn-reset" class="success">Set new password</button>
+            <button id="btn-cancel-reset" class="small">Cancel</button>
+          </div>
+          <p id="reset-msg" class="muted"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main app after login -->
+    <div id="app-area" class="card hidden">
+      <div class="row" style="justify-content:space-between">
+        <div class="welcome-block">
+          <img src="welcome.jpg" alt="welcome">
+        
+         <div>
+           <strong id="welcome-user">Welcome, user</strong>
+           <div class="small-muted">Task details modal, drag & drop, subtasks, JSON & CSV export.</div>
+         </div>
+         <div class="row">
+           <button id="btn-logout" class="danger">Logout</button>
+         </div>
+        </div>
+      </div>
+      
+
+      <!-- Two-column app grid -->
+      <div class="app-grid">
+        <div class="sidebar" id="lists-container" aria-label="Lists"></div>
+
+        <div class="tasks-panel">
+          <div class="tasks-header">
+            <div>
+              <div style="font-weight:700" id="current-list-name">All</div>
+              <div class="count-muted small" id="current-list-sub">Showing all items</div>
+            </div>
+            <div class="row">
+              <button id="btn-export-json" class="small muted">Export JSON</button>
+              <button id="btn-export-csv" class="small muted">Export Excel (CSV)</button>
+            </div>
+          </div>
+
+          <div class="task-input" style="margin-bottom:10px">
+            <input id="movie-title" placeholder="Write movie/series name..." style="flex:1" />
+            <button id="btn-add" class="success">Add</button>
+          </div>
+
+          <div class="task-list" id="task-list" aria-live="polite"></div>
+          <div id="app-status" class="status muted" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="muted small-muted">
+      © 2025 Marfi Hasan Raihan. Built as a client-side prototype.
+    </footer>
+  </div>
+
+  <!-- Task Details Modal -->
+  <div id="task-modal-backdrop" class="hidden">
+    <div class="modal-backdrop">
+      <div class="modal" role="dialog" aria-modal="true" id="task-modal">
+        <h3>Task details</h3>
+        <div class="row" style="gap:8px">
+          <label>Title</label>
+          <input id="modal-title" />
+          <label>List</label>
+          <select id="modal-list"></select>
+          <label>Deadline</label>
+          <input id="modal-deadline" type="date" />
+          <label>Tags (comma separated)</label>
+          <input id="modal-tags" placeholder="tag1, tag2" />
+          <label>Notes</label>
+          <textarea id="modal-notes" rows="4"></textarea>
+          <label><input type="checkbox" id="modal-star" /> Starred</label>
+        </div>
+        <div class="actions">
+          <button id="modal-cancel" class="small">Cancel</button>
+          <button id="modal-delete" class="small" style="background:var(--danger);color:white">Delete</button>
+          <button id="modal-save" class="small-action">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Link to external JS (defer ensures DOM is ready) -->
+  <script src="app.js" defer></script>
+</body>
+</html>
