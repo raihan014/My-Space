@@ -541,16 +541,19 @@ nav .nav-btn{
   transition:color 0.25s ease, text-shadow 0.25s ease;
 }
 
+#verify-form .row.small-muted a:hover,
 #login-form .row.small-muted a:hover{
   color:#4da3ff;
   text-decoration:underline;
 }
 
 /* Dark mode – better contrast */
+body.dark #verify-form .row.small-muted a,
 body.dark #login-form .row.small-muted a{
   color:#9fd0ff;
 }
 
+body.dark #verify-form .row.small-muted a:hover,
 body.dark #login-form .row.small-muted a:hover{
   color:#ffffff;
   text-shadow:0 0 6px rgba(255,255,255,0.35);
