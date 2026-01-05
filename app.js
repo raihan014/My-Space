@@ -57,7 +57,7 @@ const modalDelete = $('modal-delete');
 let sessionUser = null;
 let pendingUserObj = null;
 let selectedList = 'All';
-let expandedTasks = {}; // expanded subtasks state
+let expandedTasks = {}; 
 let modalOpenIndex = null; // index of task being edited
 
 const USERS_KEY = 'demo_users_v1';
@@ -81,17 +81,19 @@ function sendSimulation(email, subject, code){
 function show(el){ el.classList.remove('hidden'); }
 function hide(el){ el.classList.add('hidden'); }
 function clearMsgs(){ loginMsg.textContent=''; regMsg.textContent=''; forgotMsg.textContent=''; verifyMsg.textContent=''; resetMsg.textContent=''; appStatus.textContent=''; }
+function clearForm(form){ form.querySelectorAll('input').forEach(i => i.value = '');}
 function showLogin(){ clearMsgs(); show(loginForm); hide(registerForm); hide(forgotForm); hide(verifyForm); hide(resetForm); }
-function showRegister(){ clearMsgs(); hide(loginForm); show(registerForm); hide(forgotForm); hide(verifyForm); hide(resetForm); }
-function showForgot(){ clearMsgs(); hide(loginForm); hide(registerForm); show(forgotForm); hide(verifyForm); hide(resetForm); }
-function showVerify(){ clearMsgs(); hide(loginForm); hide(registerForm); hide(forgotForm); show(verifyForm); hide(resetForm); }
-function showReset(){ clearMsgs(); hide(loginForm); hide(registerForm); hide(forgotForm); hide(verifyForm); show(resetForm); }
+function showRegister(){ clearMsgs(); clearForm(loginForm); hide(loginForm); show(registerForm); hide(forgotForm); hide(verifyForm); hide(resetForm); }
+function showForgot(){ clearMsgs(); clearForm(loginForm); hide(loginForm); hide(registerForm); show(forgotForm); hide(verifyForm); hide(resetForm); }
+function showVerify(){ clearMsgs(); clearForm(loginForm); hide(loginForm); hide(registerForm); hide(forgotForm); show(verifyForm); hide(resetForm); }
+function showReset(){ clearMsgs(); clearForm(loginForm); hide(loginForm); hide(registerForm); hide(forgotForm); hide(verifyForm); show(resetForm); }
 
 /* ---------- Session ---------- */
 function setSession(username){
   sessionUser = username;
   localStorage.setItem(SESS_KEY, username);
   welcomeUser.textContent = `Welcome, ${username}`;
+  hide(btnShowLogin);   // ✅ ADD THIS LINE
   hide(authArea);
   show(appArea);
   const users = readUsers();
@@ -114,6 +116,7 @@ function setSession(username){
 function clearSession(){
   sessionUser = null;
   localStorage.removeItem(SESS_KEY);
+  show(btnShowLogin);   // ✅ ADD THIS LINE
   hide(appArea);
   show(authArea);
   showLogin();
@@ -137,12 +140,23 @@ function clearSession(){
 /* ---------- Events ---------- */
 function attachEvents(){
   btnShowLogin.addEventListener('click', () => { showLogin(); show(authArea); hide(appArea); });
+  const togglePwd = $('toggle-password');
+  const pwdInput = $('login-password');
+
+  if(togglePwd){
+  togglePwd.addEventListener('click', () => {
+    const hidden = pwdInput.type === 'password';
+    pwdInput.type = hidden ? 'text' : 'password';
+    togglePwd.textContent = hidden ? '🙈' : '🙉';
+  });
+  }
 
   linkShowRegister.addEventListener('click', (e) => { e.preventDefault(); showRegister(); });
   linkForgot.addEventListener('click', (e) => { e.preventDefault(); showForgot(); });
 
   // LOGOUT handler (fixed)
   btnLogout.addEventListener('click', () => {
+    $('login-password').value = ''; // ✅ clear only password
     clearSession();
     appStatus.textContent = 'Logged out.';
   });
@@ -648,79 +662,188 @@ function renderLists(){
   listsContainer.appendChild(compDiv);
 }
 
+// ================================
+// PENDING / DONE SECTION RENDERING
+// ================================
+
 function renderTasksForSelectedList(){
   if(!sessionUser) return;
   const users = readUsers(); const u = users[sessionUser];
   const movies = u.movies || [];
+  // ================================
+// FILTER BASED ON SELECTED LIST
+// ================================
 
-  let filtered = [];
-  if(selectedList === 'All'){ filtered = movies; currentListName.textContent='All'; currentListSub.textContent=`${filtered.length} items`; }
-  else if(selectedList === 'Completed'){ filtered = movies.filter(m=>m.completed); currentListName.textContent='Completed'; currentListSub.textContent=`${filtered.length} completed`; }
-  else { filtered = movies.filter(m=>m.listId===selectedList); currentListName.textContent=selectedList; currentListSub.textContent=`${filtered.length} items`; }
+let baseList = [];
 
-  taskListEl.innerHTML = '';
-  if(filtered.length === 0){ taskListEl.innerHTML = '<div class="empty-note">No items in this list. Add one with the input above.</div>'; return; }
+if(selectedList === 'All'){
+  baseList = movies;
+  currentListName.textContent = 'All';
+}
+else if(selectedList === 'Completed'){
+  baseList = movies.filter(m => m.completed);
+  currentListName.textContent = 'Completed';
+}
+else{
+  baseList = movies.filter(m => m.listId === selectedList);
+  currentListName.textContent = selectedList;
+}
 
-  filtered.forEach((m, idxInFiltered)=>{
-    const originalIndex = findMovieIndex(sessionUser, m);
-    if(originalIndex < 0) return;
-    const row = document.createElement('div');
-    row.className = 'task-row'+(m.completed?' completed':'');
-    row.setAttribute('draggable','true');
-    row.dataset.index = originalIndex;
+// ================================
+// SPLIT INTO PENDING & DONE
+// ================================
+const pendingItems = baseList.filter(m => !m.completed);
+const doneItems = baseList.filter(m => m.completed);
 
-    const key = encodeURIComponent(m.addedAt+'|'+m.title);
-    const expanded = !!expandedTasks[key];
-    const subCount = (m.subtasks||[]).length;
-    const doneCount = (m.subtasks||[]).filter(s=>s.done).length;
-    const pct = subCount===0?0:Math.round((doneCount/subCount)*100);
+currentListSub.textContent =
+  `${pendingItems.length} pending · ${doneItems.length} done`;
 
-    // serial number based on filtered order (1..n), as user requested "serial wise when they added"
-    const serial = idxInFiltered + 1;
+taskListEl.innerHTML = '';
 
-    // status badge text
-    const statusText = m.completed ? 'Done' : 'Pending';
-    const statusClass = m.completed ? 'status-badge watched' : 'status-badge pending';
+/* =================================
+   PENDING SECTION
+================================= */
+if(pendingItems.length){
+  const h = document.createElement('div');
+  h.className = 'section-header';
+  h.innerHTML = `<strong>Pending</strong><span>${pendingItems.length}</span>`;
+  taskListEl.appendChild(h);
 
-    row.innerHTML = `
-      <div class="task-main">
-        <div class="task-left">
-          <div class="check-circle ${m.completed?'checked':''}" data-index="${originalIndex}">${m.completed?'✔':''}</div>
-          <div style="display:flex;flex-direction:column;">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div style="font-weight:700;color:#2d3b4f;width:28px;text-align:center">#${serial}</div>
-              <div class="task-title" data-key="${key}">${escapeHtml(m.title)}</div>
-            </div>
-            <div class="task-meta">${new Date(m.addedAt).toLocaleString()}${ subCount>0 ? ' · ' + subCount + ' steps' : '' } · ${escapeHtml(m.listId||'Movies')}</div>
-            <div class="progress-wrap" title="${pct}% complete" style="display:${subCount>0?'block':'none'}">
-              <div class="progress-bar" style="width:${pct}%;"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="right-actions">
-          <div class="star ${m.starred?'on':''}" data-index="${originalIndex}">${m.starred?'★':'☆'}</div>
-          <div class="${statusClass}" data-index="${originalIndex}">${statusText}</div>
-          <div>
-            <button data-action="edit" data-index="${originalIndex}">Edit</button>
-            <button data-action="delete" data-index="${originalIndex}" class="danger">Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="subtasks" style="display:${expanded?'block':'none'}">
-        <div id="sub-list-${originalIndex}">
-          ${(m.subtasks||[]).map((s,si)=>`<div class="subtask-row"><div class="subcheck" data-index="${originalIndex}" data-sindex="${si}">${s.done?'✔':''}</div><div class="subtask-title" style="${s.done?'text-decoration:line-through;color:#8897a4':''}">${escapeHtml(s.title)}</div><button class="del-sub small-action" data-index="${originalIndex}" data-sindex="${si}">Del</button></div>`).join('')}
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input id="sub-input-${originalIndex}" class="input-inline" placeholder="Add step..." />
-          <button class="add-sub-btn small-action" data-index="${originalIndex}">Add</button>
-        </div>
-      </div>
-    `;
-    taskListEl.appendChild(row);
+  pendingItems.forEach((m, idxInFiltered)=>{
+    renderSingleRow(m, idxInFiltered);
   });
 }
+
+/* =================================
+   DONE SECTION
+================================= */
+if(doneItems.length){
+  const h = document.createElement('div');
+  h.className = 'section-header';
+  h.innerHTML = `<strong>Done</strong><span>${doneItems.length}</span>`;
+  taskListEl.appendChild(h);
+
+  doneItems.forEach((m, idxInFiltered)=>{
+    renderSingleRow(m, idxInFiltered);
+  });
+}
+
+
+}
+
+// =====================================
+// TASK SECTION RENDER (Pending / Done)
+// =====================================
+function renderTaskSection(title, items, isDone){
+  if(items.length === 0) return;
+
+  const section = document.createElement('div');
+  section.className = 'task-section';
+
+  section.innerHTML = `
+    <div class="section-header">
+      <strong>${title}</strong>
+      <span class="count-muted">${items.length}</span>
+    </div>
+  `;
+
+  items.forEach((m, idxInFiltered) => {
+    const originalIndex = findMovieIndex(sessionUser, m);
+    if(originalIndex < 0) return;
+
+    // ⬇️ REUSE YOUR EXISTING TASK ROW CODE
+    const taskRow = createTaskRow(m, originalIndex, idxInFiltered + 1);
+    section.appendChild(taskRow);
+  });
+
+  taskListEl.appendChild(section);
+}
+
+
+// =====================================
+// RENDER SINGLE TASK ROW (ORIGINAL CODE)
+// =====================================
+function renderSingleRow(m, idxInFiltered){
+  const originalIndex = findMovieIndex(sessionUser, m);
+  if(originalIndex < 0) return;
+
+  const row = document.createElement('div');
+  row.className = 'task-row'+(m.completed?' completed':'');
+  row.setAttribute('draggable','true');
+  row.dataset.index = originalIndex;
+
+  const key = encodeURIComponent(m.addedAt+'|'+m.title);
+  const expanded = !!expandedTasks[key];
+  const subCount = (m.subtasks||[]).length;
+  const doneCount = (m.subtasks||[]).filter(s=>s.done).length;
+  const pct = subCount===0?0:Math.round((doneCount/subCount)*100);
+  const serial = idxInFiltered + 1;
+
+  const statusText = m.completed ? 'Done' : 'Pending';
+  const statusClass = m.completed ? 'status-badge watched' : 'status-badge pending';
+
+  row.innerHTML = `
+    <div class="task-main">
+      <div class="task-left">
+        <div class="check-circle ${m.completed?'checked':''}" data-index="${originalIndex}">
+          ${m.completed?'✔':''}
+        </div>
+        <div style="display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-weight:700;width:28px;text-align:center">#${serial}</div>
+            <div class="task-title" data-key="${key}">${escapeHtml(m.title)}</div>
+          </div>
+          <div class="task-meta">
+            ${new Date(m.addedAt).toLocaleString()}
+            ${ subCount>0 ? ' · ' + subCount + ' steps' : '' }
+            · ${escapeHtml(m.listId||'Movies')}
+          </div>
+          <div class="progress-wrap" style="display:${subCount>0?'block':'none'}">
+            <div class="progress-bar" style="width:${pct}%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-actions">
+        <div class="star ${m.starred?'on':''}" data-index="${originalIndex}">
+          ${m.starred?'★':'☆'}
+        </div>
+        <div class="${statusClass}" data-index="${originalIndex}">
+          ${statusText}
+        </div>
+        <div>
+          <button data-action="edit" data-index="${originalIndex}">Edit</button>
+          <button data-action="delete" data-index="${originalIndex}" class="danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="subtasks" style="display:${expanded?'block':'none'}">
+      ${(m.subtasks||[]).map((s,si)=>`
+        <div class="subtask-row">
+          <div class="subcheck" data-index="${originalIndex}" data-sindex="${si}">
+            ${s.done?'✔':''}
+          </div>
+          <div class="subtask-title" style="${s.done?'text-decoration:line-through;color:#8897a4':''}">
+            ${escapeHtml(s.title)}
+          </div>
+          <button class="del-sub small-action" data-index="${originalIndex}" data-sindex="${si}">
+            Del
+          </button>
+        </div>
+      `).join('')}
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="sub-input-${originalIndex}" class="input-inline" placeholder="Add step..." />
+        <button class="add-sub-btn small-action" data-index="${originalIndex}">Add</button>
+      </div>
+    </div>
+  `;
+
+  taskListEl.appendChild(row);
+}
+
+
+
 
 function findMovieIndex(username, movieObj){
   const users = readUsers(); const u = users[username];

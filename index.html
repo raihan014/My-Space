@@ -30,7 +30,10 @@
           <h3>Login</h3>
           <div class="row" style="margin-bottom:8px">
             <input id="login-username" placeholder="Username or email" />
-            <input id="login-password" type="password" placeholder="Password" />
+             <div class="password-wrap">
+               <input id="login-password" type="password" placeholder="Password" />
+                <button type="button" id="toggle-password" aria-label="Show password">🙉</button>
+             </div>
             <button id="btn-login" class="info">Login</button>
           </div>
           <div class="row small-muted">
